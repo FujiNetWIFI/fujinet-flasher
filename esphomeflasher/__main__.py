@@ -158,8 +158,8 @@ def run_esphomeflasher(argv):
     print("Done! Flashing is complete!")
     print()
 
-    if args.upload_baud_rate != 921600:
-        stub_chip._port.baudrate = 921600
+    if args.upload_baud_rate != 115200:
+        stub_chip._port.baudrate = 115200
         time.sleep(0.05)  # get rid of crap sent during baud rate change
         stub_chip._port.flushInput()
 
