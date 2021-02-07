@@ -3,6 +3,9 @@ from __future__ import print_function
 import argparse
 from datetime import datetime
 import sys
+
+sys.stdout.isatty = lambda: False
+
 import time
 from esphomeflasher.common import open_downloadable_binary
 from esphomeflasher.common import fujinet_version_info
@@ -158,8 +161,8 @@ def run_esphomeflasher(argv):
     print("Done! Flashing is complete!")
     print()
 
-    if args.upload_baud_rate != 115200:
-        stub_chip._port.baudrate = 115200
+    if args.upload_baud_rate != 921600:
+        stub_chip._port.baudrate = 921600
         time.sleep(0.05)  # get rid of crap sent during baud rate change
         stub_chip._port.flushInput()
 
