@@ -11,7 +11,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.12'
+          python-version: '3.10.11'
           architecture: 'x64'
       - name: Print Versions
         run: |
@@ -36,7 +36,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.12'
+          python-version: '3.10.11'
           architecture: 'x86'
       - name: Print Versions
         run: |
@@ -65,7 +65,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.12'
+          python-version: '3.10.11'
       - name: Install dependencies
         run: |
           sudo apt update
@@ -98,7 +98,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.12'
+          python-version: '3.10.11'
       - name: Print Versions
         run: |
           python --version
@@ -139,6 +139,10 @@ jobs:
         uses: actions/checkout@v1
       - name: Get Python
         run: curl https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macosx10.9.pkg -o "python.pkg"
+      - name: Uninstall homebrew python
+        run: brew uninstall python@3.12.3
+      - name: Uninstall homebrew pip
+        run: brew uninstall brew-pip
       - name: Install Python
         # Need to copy the pkg because the installer command removes it, breaking the cache
         run: |
