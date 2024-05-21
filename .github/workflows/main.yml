@@ -7,9 +7,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
       - name: Install Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: '3.7'
           architecture: 'x64'
@@ -32,9 +32,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
       - name: Install Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: '3.7'
           architecture: 'x86'
@@ -61,9 +61,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v4
       - name: Install Python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
       - name: Install dependencies
@@ -94,9 +94,9 @@ jobs:
     runs-on: macOS-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
       - name: Install Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: '3.7'
       - name: Print Versions
