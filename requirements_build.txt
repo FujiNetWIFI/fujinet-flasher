@@ -5,3 +5,4 @@ esptool==3.0
 requests>=2.24.0,<3
 pyinstaller>=4.5.1,<5
 certifi
+cryptography>=3.4.8

@@ -140,7 +140,7 @@ jobs:
       - name: Get Python
         run: curl https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macosx10.9.pkg -o "python.pkg"
       - name: Uninstall homebrew python
-        run: brew uninstall python@3.12
+        run: brew uninstall --ignore-dependencies python@3.12
       - name: Uninstall homebrew pip
         run: brew uninstall brew-pip
       - name: Install Python
