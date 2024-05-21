@@ -11,7 +11,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.11'
+          python-version: '3.8.10'
           architecture: 'x64'
       - name: Print Versions
         run: |
@@ -36,7 +36,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.11'
+          python-version: '3.8.10'
           architecture: 'x86'
       - name: Print Versions
         run: |
@@ -65,7 +65,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.11'
+          python-version: '3.8.10'
       - name: Install dependencies
         run: |
           sudo apt update
@@ -98,7 +98,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10.11'
+          python-version: '3.8.10'
       - name: Print Versions
         run: |
           python --version
@@ -140,7 +140,7 @@ jobs:
       - name: Get Python
         run: curl https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macosx10.9.pkg -o "python.pkg"
       - name: Uninstall homebrew python
-        run: brew uninstall python@3.12.3
+        run: brew uninstall python@3.12
       - name: Uninstall homebrew pip
         run: brew uninstall brew-pip
       - name: Install Python
