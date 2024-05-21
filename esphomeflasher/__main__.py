@@ -60,6 +60,10 @@ def select_baud(args):
 
 def show_logs(serial_port):
     print("Showing logs:")
+    # close the port in case it's already open
+    serial_port.close()
+    # and reopen it
+    serial_port.open()
     with serial_port:
         while True:
             try:
@@ -131,7 +135,7 @@ def run_esphomeflasher_args(args):
             addr_filename.append((offset, file_obj))
             if file_name.split(".", 1)[0].lower() == 'firmware':
                 firmware = file_obj
-            if file_name.split(".", 1)[0].lower() == 'spiffs':
+            if file_name.split(".", 1)[0].lower() == 'spiffs' or file_name.split(".", 1)[0].lower() == 'littlefs':
                 spiffs_start = offset
             filecount += 1
             print("File {}: {}, Offset: 0x{:04X}".format(filecount, file_name, offset))
