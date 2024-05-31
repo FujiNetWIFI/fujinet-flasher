@@ -6,7 +6,8 @@ import threading
 import io
 
 from urllib.parse import urljoin
-from urllib.request import urlopen
+import urllib.request
+import urllib.error
 
 import wx
 import wx.adv
@@ -380,8 +381,13 @@ class MainFrame(wx.Frame):
             self.platform_info_text.SetLabel("")
 
         def version_check():
-            f = urlopen(FUJINET_FLASHER_VERSION_URL)
-            current_ver = f.read().decode('utf-8').strip()
+            try:
+                f = urllib.request.urlopen(FUJINET_FLASHER_VERSION_URL)
+                current_ver = f.read().decode('utf-8').strip()
+            except urllib.error.URLError as e:
+                print("Error getting version: {}".format(e))
+                current_ver = __version__  # Fallback to current version if there is an error
+
             if __version__ != current_ver:
                 self.flasher_ver_text.SetLabel("This version of FujiNet-Flasher is old, Please Update ({}->{})\n at https://fujinet.online/download".format(__version__, current_ver))
             else:
