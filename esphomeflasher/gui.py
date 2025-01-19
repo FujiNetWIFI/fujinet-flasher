@@ -383,13 +383,15 @@ class MainFrame(wx.Frame):
         def version_check():
             try:
                 f = urllib.request.urlopen(FUJINET_FLASHER_VERSION_URL)
-                current_ver = f.read().decode('utf-8').strip()
+                latest_ver = f.read().decode('utf-8').strip()
             except urllib.error.URLError as e:
                 print("Error getting version: {}".format(e))
-                current_ver = __version__  # Fallback to current version if there is an error
+                latest_ver = __version__  # Fallback to current version if there is an error
 
-            if __version__ != current_ver:
-                self.flasher_ver_text.SetLabel("This version of FujiNet-Flasher is old, Please Update ({}->{})\n at https://fujinet.online/download".format(__version__, current_ver))
+            if __version__ < latest_ver:
+                self.flasher_ver_text.SetLabel("This version of FujiNet-Flasher is old, Please Update ({}->{})\n at https://fujinet.online/download".format(__version__, latest_ver))
+            elif __version__ > latest_ver:
+                self.flasher_ver_text.SetLabel("FujiNet-Flasher Version {} (pre-release)".format(__version__))
             else:
                 self.flasher_ver_text.SetLabel("FujiNet-Flasher Version {}".format(__version__))
 

@@ -144,7 +144,7 @@ def run_esphomeflasher_args(args):
                 addr_filename.append((offset, file_obj))
                 if file_name.split(".", 1)[0].lower() == 'firmware':
                     firmware = file_obj
-                if file_name.split(".", 1)[0].lower() == 'spiffs' or file_name.split(".", 1)[0].lower() == 'littlefs':
+                if file_name.split(".", 1)[0].lower() == 'spiffs' or file_name.split(".", 1)[0].lower() == 'littlefs' or file_name.split(".", 1)[0].lower() == 'filesystem':
                     spiffs_start = offset
                 filecount += 1
                 print("File {}: {}, Offset: 0x{:04X}".format(filecount, file_name, offset))
