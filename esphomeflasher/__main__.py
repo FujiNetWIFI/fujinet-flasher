@@ -12,17 +12,17 @@ from esphomeflasher.common import open_downloadable_binary, open_binary_from_zip
 from esphomeflasher.common import fujinet_version_info, is_url
 
 import esptool
+from esptool.cmds import detect_chip
 import serial
 
 from esphomeflasher import const
 from esphomeflasher.common import ESP32ChipInfo, EsphomeflasherError, chip_run_stub, \
-    configure_write_flash_args, detect_chip, detect_flash_size, read_chip_info, \
+    configure_write_flash_args, detect_flash_size, read_chip_info, \
     read_firmware_info, check_flash_size, MockEsptoolArgs
 from esphomeflasher.const import ESP32_DEFAULT_BOOTLOADER_FORMAT, ESP32_DEFAULT_OTA_DATA, \
     ESP32_DEFAULT_PARTITIONS, ESP32_DEFAULT_FIRMWARE, ESP32_DEFAULT_SPIFFS, \
     FUJINET_VERSION_INFO, FUJINET_RELEASE_INFO
 from esphomeflasher.helpers import list_serial_ports
-
 
 # Set PYTHONUNBUFFERED environment variable to ensure unbuffered output
 os.environ["PYTHONUNBUFFERED"] = "1"
@@ -159,26 +159,36 @@ def run_esphomeflasher_args(args):
         else:
             raise EsphomeflasherError("Invalid release info. Missing firmware file!")
 
-        chip = detect_chip(port, force_esp32=True)
-        info = read_chip_info(chip)
+        try:
+            chip = detect_chip(
+                port=port,
+                baud="115200",                  # Detect at slow baud
+                connect_mode="default-reset",
+                trace_enabled=False,
+                connect_attempts=7
+            )
+        except esptool.FatalError as err:
+            raise EsphomeflasherError(f"Error Detecting ESP: {err}") from err
 
-        print()
-        print("Chip Info:")
-        print(" - Chip Family: {}".format(info.family))
-        print(" - Chip Model: {}".format(info.model))
-        if isinstance(info, ESP32ChipInfo):
-            print(" - Number of Cores: {}".format(info.num_cores))
-            print(" - Max CPU Frequency: {}".format(info.cpu_frequency))
-            print(" - Has Bluetooth: {}".format('YES' if info.has_bluetooth else 'NO'))
-            print(" - Has Embedded Flash: {}".format('YES' if info.has_embedded_flash else 'NO'))
-            print(" - Has Factory-Calibrated ADC: {}".format(
-                'YES' if info.has_factory_calibrated_adc else 'NO'))
-        else:
-            print(" - Chip ID: {:08X}".format(info.chip_id))
-
-        print(" - MAC Address: {}".format(info.mac))
+        try:
+            chip.connect('no_reset',7,False,False)
+        except esptool.FatalError as err:
+            raise EsphomeflasherError(f"Error connecting to ESP: {err}") from err
 
         stub_chip = chip_run_stub(chip)
+        info = read_chip_info(chip)
+
+        if isinstance(info, ESP32ChipInfo):
+            print("\nChip Info:")
+            for attr, val in vars(info).items():
+                # skip private/internal attrs
+                if attr.startswith('_'):
+                    continue
+                # pretty-up the field name
+                name = attr.replace('_', ' ').title()
+                print(f" - {name}: {val}")
+        else:
+            print(" - Chip ID: {:08X}".format(info.chip_id))
 
         if args.upload_baud_rate != 115200:
             try:
@@ -190,7 +200,7 @@ def run_esphomeflasher_args(args):
         if not flash_size:
             raise EsphomeflasherError("Firmware larger than chip flash, stopping!")
 
-        mock_args = MockEsptoolArgs(flash_size, addr_filename, flash_mode, flash_freq)
+        mock_args = MockEsptoolArgs(flash_size, addr_filename, flash_mode, flash_freq, chip)
 
         print(" - Flash Mode: {}".format(mock_args.flash_mode))
         print(" - Flash Frequency: {}Hz".format(mock_args.flash_freq.upper()))

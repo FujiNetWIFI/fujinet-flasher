@@ -23,7 +23,7 @@ DOWNLOAD_URL = '{}/archive/{}.zip'.format(GITHUB_URL, const.__version__)
 
 REQUIRES = [
     'wxpython>=4.0,<5.0',
-    'esptool==2.8',
+    'esptool>=4.7',
     'requests>=2.0,<3',
 ]
 

@@ -1,9 +1,9 @@
 attrdict3
 wheel
-wxpython==4.1.1
-esptool==3.0
+wxpython>=4.1.1
+esptool>=4.7
 requests>=2.24.0,<3
-pyinstaller==4.10
+pyinstaller>=4.10
 pyinstaller-hooks-contrib==2023.2
 certifi
 cryptography>=3.4.8
