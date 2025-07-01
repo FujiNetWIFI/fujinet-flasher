@@ -18,7 +18,8 @@ class EsphomeflasherError(Exception):
 
 
 class MockEsptoolArgs(object):
-    def __init__(self, flash_size, addr_filename, flash_mode, flash_freq):
+    def __init__(self, flash_size, addr_filename, flash_mode, flash_freq, chip):
+        self.chip = chip
         self.compress = True
         self.no_compress = False
         self.flash_size = flash_size
@@ -29,7 +30,9 @@ class MockEsptoolArgs(object):
         self.verify = False
         self.erase_all = False
         self.encrypt = False
-
+        self.force = True
+        self.encrypt = False
+        self.encrypt_files = None
 
 class ChipInfo(object):
     def __init__(self, family, model, mac):
@@ -92,6 +95,16 @@ def read_chip_property(func, *args, **kwargs):
 def read_chip_info(chip):
     mac = ':'.join('{:02X}'.format(x) for x in read_chip_property(chip.read_mac))
     if isinstance(chip, esptool.ESP32ROM):
+        model = read_chip_property(chip.get_chip_description)
+        features = read_chip_property(chip.get_chip_features)
+        num_cores = 2 if 'Dual Core' in features else 1
+        frequency = next((x for x in ('160MHz', '240MHz') if x in features), '80MHz')
+        has_bluetooth = 'BT' in features
+        has_embedded_flash = 'Embedded Flash' in features
+        has_factory_calibrated_adc = 'VRef calibration in efuse' in features
+        return ESP32ChipInfo(model, mac, num_cores, frequency, has_bluetooth,
+                             has_embedded_flash, has_factory_calibrated_adc)
+    elif isinstance(chip, esptool.ESP32S3ROM):
         model = read_chip_property(chip.get_chip_description)
         features = read_chip_property(chip.get_chip_features)
         num_cores = 2 if 'Dual Core' in features else 1
@@ -202,20 +215,3 @@ def configure_write_flash_args(info, firmware_path, flash_size,
                                bootloader_path, partitions_path,
                                otadata_path, spiffs_path):
     return 0
-
-def detect_chip(port, force_esp8266=False, force_esp32=False):
-    if force_esp8266 or force_esp32:
-        klass = esptool.ESP32ROM if force_esp32 else esptool.ESP8266ROM
-        chip = klass(port)
-    else:
-        try:
-            chip = esptool.ESPLoader.detect_chip(port)
-        except esptool.FatalError as err:
-            raise EsphomeflasherError("ESP Chip Auto-Detection failed: {}".format(err))
-
-    try:
-        chip.connect()
-    except esptool.FatalError as err:
-        raise EsphomeflasherError("Error connecting to ESP: {}".format(err))
-
-    return chip
