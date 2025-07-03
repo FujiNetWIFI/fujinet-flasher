@@ -195,7 +195,8 @@ class MainFrame(wx.Frame):
         file_menu = wx.Menu()
         quit_item = file_menu.Append(
             wx.ID_EXIT, "Quit\tCtrl-Q" if sys.platform != "darwin" else "Quit\tCmd-Q", "Quit FujiNet-Flasher")
-        menubar.Append(file_menu, "&File")
+        if sys.platform != "darwin":
+            menubar.Append(file_menu, "&File")
         self.SetMenuBar(menubar)
         self.Bind(wx.EVT_MENU, self._on_exit_app, quit_item)
 
