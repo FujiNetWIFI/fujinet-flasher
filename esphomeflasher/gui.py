@@ -190,6 +190,7 @@ class MainFrame(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title, style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
 
+        # Add menu with quit option
         menubar = wx.MenuBar()
         file_menu = wx.Menu()
         quit_item = file_menu.Append(
