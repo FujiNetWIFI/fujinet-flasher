@@ -48,6 +48,12 @@ BACK_COLORS = {**COLORS, None: wx.BLACK}
 
 # See discussion at http://stackoverflow.com/q/41101897/131929
 class RedirectText(io.TextIOBase):
+    # This console renders ANSI colour itself -- see _write_line() below, which
+    # parses SGR codes into wx text attributes. isatty() has to stay False
+    # (esptool changes its output format for a TTY), so callers that want to
+    # know whether colour will render check this instead.
+    supports_ansi = True
+
     def __init__(self, text_ctrl):
         self._out = text_ctrl
         self._i = 0

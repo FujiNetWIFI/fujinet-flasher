@@ -63,6 +63,61 @@ def select_baud(args):
         print(u"Using '{}' as baud rate.".format(args.upload_baud_rate))
         return args.upload_baud_rate
 
+# Progress lines from a FujiNet flashing its companion microcontroller all
+# carry this prefix. They are highlighted below so the second flashing step
+# stands out in what is otherwise a wall of boot log.
+COMPANION_LOG_PREFIX = "PICOFW:"
+
+
+def _ansi_ok():
+    """True where highlighting will render rather than show up as escape
+    codes. The GUI's console sets supports_ansi because it parses SGR codes
+    itself; a plain terminal is detected the usual way."""
+    if getattr(sys.stdout, "supports_ansi", False):
+        return True
+    try:
+        return sys.stdout.isatty()
+    except Exception:
+        return False
+
+
+def _highlight_companion(message):
+    if COMPANION_LOG_PREFIX not in message or not _ansi_ok():
+        return message
+    return u"\033[1;36m{}\033[0m".format(message)
+
+
+def show_companion_notice(release_info):
+    """Tell the user that flashing is not actually finished yet.
+
+    A Fujiversal FujiNet carries a second microcontroller -- the cartridge
+    that plugs into the retro machine -- whose firmware travels inside the
+    ESP32 image and is pushed across on the next boot. Nothing about the
+    flashing above covers it, so without this the user sees "Flashing is
+    complete", unplugs the board, and ends up with a half-updated device.
+
+    Older firmware zips have no "companion" key and print nothing new.
+    """
+    companion = release_info.get('companion') or []
+    if not companion:
+        return
+
+    print()
+    print("This firmware also carries cartridge firmware, which the FujiNet")
+    print("flashes itself on the next boot:")
+    for entry in companion:
+        print(u"  {} ({}, {} bytes, sha256 {})".format(
+            entry.get('name', '?'),
+            entry.get('chip', 'unknown chip'),
+            entry.get('size', '?'),
+            str(entry.get('sha256', ''))[:12]))
+    print()
+    print("Watch the log below for {} lines and leave the board powered".format(
+        COMPANION_LOG_PREFIX))
+    print("until one of them says OK or 'up to date'.")
+    print()
+
+
 def show_logs(serial_port):
     print("Showing logs:")
     # close the port in case it's already open
@@ -79,7 +134,7 @@ def show_logs(serial_port):
             text = raw.decode(errors='ignore')
             line = text.replace('\r', '').replace('\n', '')
             time = datetime.now().time().strftime('[%H:%M:%S] ')
-            message = time + line
+            message = _highlight_companion(time + line)
             try:
                 print(message)
             except UnicodeEncodeError:
@@ -226,6 +281,8 @@ def run_esphomeflasher_args(args):
 
         print("Done! Flashing is complete!")
         print()
+
+        show_companion_notice(release_info)
 
         time.sleep(0.05)
         stub_chip._port.flushInput()
