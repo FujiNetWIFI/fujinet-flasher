@@ -59,6 +59,9 @@ jobs:
         run: |
           python -m venv .venv
           .\.venv\Scripts\Activate.ps1
+          # cryptography ships no 32-bit Windows wheels after 48.0.1; newer
+          # versions fall back to the sdist and need Rust and OpenSSL to build
+          pip install "cryptography==48.0.1"
           python -m pip uninstall -y esptool
           python -m pip install "esptool>=4.7"
           pip install -r requirements_build.txt
